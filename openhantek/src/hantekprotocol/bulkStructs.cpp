@@ -633,7 +633,7 @@ void BulkSetTrigger5200::init() {
 /// \class BulkSetBuffer2250                                    hantek/types.h
 /// \brief The DSO-2250 BulkCode::FSETBUFFER builder.
 /// \brief Sets the data array to the default values.
-BulkSetBuffer2250::BulkSetBuffer2250() : BulkCommand(BulkCode::FSETBUFFER, 10) { this->init(); }
+BulkSetBuffer2250::BulkSetBuffer2250() : BulkCommand(BulkCode::FSETBUFFER, 12) { this->init(); }
 
 /// \brief Sets the data bytes to the specified values.
 /// \param triggerPositionPre The TriggerPositionPre value.
