@@ -102,9 +102,9 @@ struct DBufferBits {
 /// \struct ESamplerateBits
 /// \brief Samplerate bits for DSO-2250 0x0e command.
 struct ESamplerateBits {
-    uint8_t fastRate : 1;     ///< false, if one channels uses all buffers
+    uint8_t fastRate : 1;     ///< true, if one channels uses all buffers
     uint8_t downsampling : 1; ///< true, if the downsampler is activated
-    uint8_t reserved : 4;     ///< Unused bits
+    uint8_t reserved : 6;     ///< Unused bits
 };
 
 
