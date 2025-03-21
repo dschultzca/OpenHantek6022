@@ -69,9 +69,15 @@ namespace Dso {
     QString slopeString(Slope slope) {
         switch (slope) {
         case Slope::Positive:
-            return QString::fromUtf8("\u2197");
+#ifdef _WIN32
+            return QString::fromUtf8("\u002f");
         case Slope::Negative:
-            return QString::fromUtf8("\u2198");
+            return QString::fromUtf8("\u005c");
+#else
+            return QString::fromUtf8("\u2197"); // not available on Windows
+        case Slope::Negative:
+            return QString::fromUtf8("\u2198"); // not available on Windows
+#endif
         default:
             return QString();
         }
