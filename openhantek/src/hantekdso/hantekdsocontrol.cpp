@@ -126,9 +126,9 @@ void HantekDsoControl::updateInterval() {
     else
         cycleTime = (int)((double)getRecordLength() / controlsettings.samplerate.current * 250);
 
-    // Not more often than every 100 ms though but at least once every second
-    cycleTime = qBound(100, cycleTime, 1000);
-    //timestampDebug(QString("cycleTime %1").arg(cycleTime));
+    // Not more often than every 10 ms though but at least once every second
+    cycleTime = qBound(10, cycleTime, 1000);
+    timestampDebug(QString("cycleTime %1").arg(cycleTime));
 }
 
 bool HantekDsoControl::isRollMode() const {
@@ -218,7 +218,7 @@ std::vector<unsigned char> HantekDsoControl::getSamples(unsigned &previousSample
 
     unsigned dataLength = (specification->sampleSize > 8) ? totalSampleCount * 2 : totalSampleCount;
 
-    // Save raw data to temporary buffer
+    // Retrieve raw data into temporary buffer
     std::vector<unsigned char> data(dataLength);
     int errorcode = device->bulkReadMulti(data.data(), dataLength);
     if (errorcode < 0) {
@@ -599,6 +599,9 @@ unsigned HantekDsoControl::updateSamplerate(unsigned downsampler, bool fastRate)
         break;
     }
     case BulkCode::ESETTRIGGERORSAMPLERATE: {
+        // a freshly powered device may have a unknown record length setting. To the 2250 device, 0 = 512B and 1 = 20480
+        if (!isRollMode())
+            modifyCommand<BulkSetRecordLength2250>(BulkCode::DSETBUFFER)->setRecordLength(1); // <-- device DSETBUFFER record length ID is not the same as the controlsettings.recordLengthId
         // Pointers to needed commands
         BulkSetSamplerate2250 *commandSetSamplerate2250 =
             modifyCommand<BulkSetSamplerate2250>(BulkCode::ESETTRIGGERORSAMPLERATE);
@@ -677,6 +680,8 @@ void HantekDsoControl::updateSamplerateLimits() {
     }
 }
 
+// Called from HorizontalDock::recordLengthChanged signal
+// index    index of record length in spinbox
 Dso::ErrorCode HantekDsoControl::setRecordLength(unsigned index) {
     // qDebug() << "setRecordLength()";
     if (!device->isConnected()) return Dso::ErrorCode::CONNECTION;
@@ -690,6 +695,7 @@ Dso::ErrorCode HantekDsoControl::setRecordLength(unsigned index) {
     return Dso::ErrorCode::NONE;
 }
 
+// Called by HorizontalDock::samplerateChanged spinbox
 Dso::ErrorCode HantekDsoControl::setSamplerate(double samplerate) {
     // qDebug() << "HDC::setSamplerate(" << samplerate << ")";
     if (!device->isConnected()) return Dso::ErrorCode::CONNECTION;
@@ -735,8 +741,10 @@ Dso::ErrorCode HantekDsoControl::setSamplerate(double samplerate) {
     }
 }
 
+// Call by HorizontalDock::timebaseChanged spinbox
+// duration    time of spinbox*10
 Dso::ErrorCode HantekDsoControl::setRecordTime(double duration) {
-    // printf( "setRecordTime( %g )\n", duration );
+    // qDebug( "setRecordTime( %g )\n", duration );
     if (!device->isConnected())
         return Dso::ErrorCode::CONNECTION;
 
@@ -755,12 +763,13 @@ Dso::ErrorCode HantekDsoControl::setRecordTime(double duration) {
 
         // When possible, enable fast rate if the record time can't be set that low
         // to improve resolution
-        bool fastRate = (controlsettings.usedChannels < 1) &&
+        bool fastRate = (controlsettings.usedChannels < 2) && ((duration / 10) <= 0.000004) &&
                         (maxSamplerate >= specification->samplerate.multi.base /
                                               specification->bufferDividers[controlsettings.recordLengthId]);
 
         // What is the nearest, at most as high samplerate the scope can provide?
         unsigned downsampler = 0;
+        controlsettings.samplerate.current = getBestSamplerate(1 / duration * 10000, fastRate, false, &(downsampler));
 
         // Set the calculated samplerate
         if (this->updateSamplerate(downsampler, fastRate) == UINT_MAX)
@@ -1098,6 +1107,7 @@ Dso::ErrorCode HantekDsoControl::setPretriggerPosition(double position) {
     }
     case BulkCode::FSETBUFFER: {
         // Calculate the position values (Inverse, maximum is 0x7ffff)
+        if (isFastRate()) recordLength /= 2; // record length is always 10240 in fast rate
         unsigned positionPre = 0x7ffff - recordLength + (unsigned)positionSamples;
         unsigned positionPost = 0x7ffff - (unsigned)positionSamples;
 
@@ -1256,7 +1266,7 @@ void HantekDsoControl::run() {
                 break;
             }
 
-            //timestampDebug("Starting to capture");
+            timestampDebug("Roll mode starting to capture");
 
             this->_samplingStarted = true;
 
@@ -1272,7 +1282,7 @@ void HantekDsoControl::run() {
                 break;
             }
 
-            timestampDebug("Enabling trigger");
+            timestampDebug("Roll mode enabling trigger");
 
             break;
 
@@ -1286,7 +1296,7 @@ void HantekDsoControl::run() {
                 break;
             }
 
-            timestampDebug("Forcing trigger");
+            timestampDebug("Roll mode forcing trigger");
 
             break;
 
