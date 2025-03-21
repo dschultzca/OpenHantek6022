@@ -12,13 +12,14 @@ endmacro( CheckExitCodeAndExitIfError )
 set(filename "${CMAKE_BINARY_DIR}/fftw.zip")
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(LIBEXE_MACHINE "/machine:x86")
     message("Download/Extract FFTW for 32bit")
     if (NOT EXISTS "${CMAKE_BINARY_DIR}/fftw.zip")
         # file(DOWNLOAD "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll32.zip" "${filename}" SHOW_PROGRESS)
         set(filename "${CMAKE_CURRENT_LIST_DIR}/fftw-3.3.5-dll32.zip")
     endif()
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(LIBEXE_64 "/machine:x64")
+    set(LIBEXE_MACHINE "/machine:x64")
     message("Download/Extract FFTW for 64bit")
     if (NOT EXISTS "${CMAKE_BINARY_DIR}/fftw.zip")
         # file(DOWNLOAD "ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip" "${filename}" SHOW_PROGRESS)
@@ -48,7 +49,7 @@ if(CMAKE_HOST_UNIX AND WIN32)
     message(STATUS "Found dlltool: ${isExists}")
     if("${isExists}" MATCHES "${DLLTOOL}")
         execute_process(
-	    COMMAND ${DLLTOOL} ${LIBEXE_64} -d ${CMAKE_BINARY_DIR}/fftw/libfftw3-3.def -l ${CMAKE_BINARY_DIR}/fftw/libfftw3-3.lib
+	    COMMAND ${DLLTOOL} ${LIBEXE_MACHINE} -d ${CMAKE_BINARY_DIR}/fftw/libfftw3-3.def -l ${CMAKE_BINARY_DIR}/fftw/libfftw3-3.lib
 	    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/fftw"
 	    OUTPUT_VARIABLE OutVar
 	    ERROR_VARIABLE ErrVar
@@ -58,8 +59,9 @@ if(CMAKE_HOST_UNIX AND WIN32)
 	message(FATAL_ERROR "Your cross compiler dlltool is not installed or name is different from i686-w64-mingw32-dlltool. If you running Fedora or Fedora based distro you can install it by running:\n# dnf install mingw32-binutils")
     endif()
 else()
+    message("Generating library for: ${LIBEXE_MACHINE}")
     execute_process(
-	COMMAND "${_vs_bin_path}/lib.exe" ${LIBEXE_64} /def:${CMAKE_BINARY_DIR}/fftw/libfftw3-3.def /out:${CMAKE_BINARY_DIR}/fftw/libfftw3-3.lib
+	COMMAND "${_vs_bin_path}/lib.exe" ${LIBEXE_MACHINE} /def:${CMAKE_BINARY_DIR}/fftw/libfftw3-3.def /out:${CMAKE_BINARY_DIR}/fftw/libfftw3-3.lib
 	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/fftw"
 	OUTPUT_VARIABLE OutVar
 	ERROR_VARIABLE ErrVar
@@ -71,6 +73,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} "${CMAKE_BINARY_DIR}/fftw/libfftw3-3.lib")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/fftw")
 
+# not needed for MSVC build
 file(COPY "${CMAKE_BINARY_DIR}/fftw/fftw3.h" DESTINATION "${CMAKE_SOURCE_DIR}/src")
 
 add_custom_command(TARGET ${PROJECT_NAME}
