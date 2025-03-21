@@ -73,35 +73,35 @@ HorizontalDock::HorizontalDock(DsoSettingsScope *scope, QWidget *parent, Qt::Win
     row = 0; // allows flexible shift up/down 
     this->dockLayout->addWidget(this->timebaseLabel, row, 0);
     this->dockLayout->addWidget(this->timebaseSiSpinBox, row++, 1);
-    this->dockLayout->addWidget(this->samplerateLabel, row, 0);
-    this->dockLayout->addWidget(this->samplerateSiSpinBox, row++, 1);
+    //this->dockLayout->addWidget(this->samplerateLabel, row, 0);
+    //this->dockLayout->addWidget(this->samplerateSiSpinBox, row++, 1);
     this->dockLayout->addWidget(this->frequencybaseLabel, row, 0);
     this->dockLayout->addWidget(this->frequencybaseSiSpinBox, row++, 1);
     //this->dockLayout->addWidget(this->recordLengthLabel, row, 0);
     //this->dockLayout->addWidget(this->recordLengthComboBox, row++, 1);
     this->dockLayout->addWidget(this->formatLabel, row, 0);
     this->dockLayout->addWidget(this->formatComboBox, row++, 1);
-    this->dockLayout->addWidget(this->calfreqLabel, row, 0);
-    this->dockLayout->addWidget(this->calfreqSiSpinBox, row++, 1);
+    //this->dockLayout->addWidget(this->calfreqLabel, row, 0);
+    //this->dockLayout->addWidget(this->calfreqSiSpinBox, row++, 1);
 
     this->dockWidget = new QWidget();
     SetupDockWidget(this, dockWidget, dockLayout);
 
     // Connect signals and slots
-    connect(this->samplerateSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::samplerateSelected);
+    //connect(this->samplerateSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::samplerateSelected);
     connect(this->timebaseSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::timebaseSelected);
     connect(this->frequencybaseSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::frequencybaseSelected);
-    connect(this->recordLengthComboBox, SELECT<int>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, &HorizontalDock::recordLengthSelected);
+    //connect(this->recordLengthComboBox, SELECT<int>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, &HorizontalDock::recordLengthSelected);
     connect(this->formatComboBox, SELECT<int>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, &HorizontalDock::formatSelected);
-    connect(this->calfreqSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::calfreqSelected);
+    //connect(this->calfreqSiSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &HorizontalDock::calfreqSelected);
 
     // Set values
-    this->setSamplerate(scope->horizontal.samplerate);
+    //this->setSamplerate(scope->horizontal.samplerate);
     this->setTimebase(scope->horizontal.timebase);
     this->setFrequencybase(scope->horizontal.frequencybase);
     // this->setRecordLength(scope->horizontal.recordLength);
     this->setFormat(scope->horizontal.format);
-    this->setCalfreq(scope->horizontal.calfreq);
+    //this->setCalfreq(scope->horizontal.calfreq);
 }
 
 
