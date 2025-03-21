@@ -1,5 +1,6 @@
 #include "glscopegraph.h"
 #include <QDebug>
+#include <stdexcept>
 
 Graph::Graph() : buffer(QOpenGLBuffer::VertexBuffer) {
     buffer.create();

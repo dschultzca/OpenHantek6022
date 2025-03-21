@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QMutex>
 #include <exception>
+#include <stdexcept>
 
 #include "post/graphgenerator.h"
 #include "post/ppresult.h"
