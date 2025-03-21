@@ -315,7 +315,7 @@ namespace Hantek {
 ///     <tr>
 ///       <td>0x0d</td>
 ///       <td>0x00</td>
-///       <td>::RecordLengthId</td>
+///       <td>::RecordLengthId</td> // To the DSO device this means: 0 = 512B, 1 = 20480B
 ///       <td>0x00</td>
 ///     </tr>
 ///   </table>
@@ -359,7 +359,7 @@ namespace Hantek {
 ///     <tr>
 ///       <td>0x0e</td>
 ///       <td>0x00</td>
-///       <td>ESamplerateBits</td>
+///       <td>ESamplerateBits</td>  // 1 = fast rate, 2 = down sampling
 ///       <td>0x00</td>
 ///       <td>Samplerate[0]</td>
 ///       <td>Samplerate[1]</td>
